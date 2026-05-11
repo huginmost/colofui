@@ -29,7 +29,7 @@ func main() {
 			A: 0,
 		},
 		DisableResize:     true,
-		StartHidden:       false,
+		StartHidden:       true,
 		HideWindowOnClose: false,
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,

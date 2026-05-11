@@ -30,22 +30,23 @@ func NewApp() *App {
 
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-	go a.setNoActivate()
+	go a.applyWindowStyles()
 }
 
 const (
-	gwlExStyle      = ^uintptr(19) // -20 for GetWindowLongW
+	gwlStyle        = ^uintptr(15) // -16
+	gwlExStyle      = ^uintptr(19) // -20
+	wsSysMenu       = 0x00080000
 	wsExNoActivate  = 0x08000000
 	wsExToolWindow  = 0x00000080
 	swpNoActivate   = 0x0010
 	swpNoMove       = 0x0002
 	swpNoSize       = 0x0001
 	swpFrameChanged = 0x0020
+	swpShowWindow   = 0x0040
 )
 
-func (a *App) setNoActivate() {
-	time.Sleep(200 * time.Millisecond)
-
+func (a *App) applyWindowStyles() {
 	user32 := syscall.NewLazyDLL("user32.dll")
 	findWindowW := user32.NewProc("FindWindowW")
 	getWindowLongW := user32.NewProc("GetWindowLongW")
@@ -53,16 +54,32 @@ func (a *App) setNoActivate() {
 	setWindowPos := user32.NewProc("SetWindowPos")
 
 	title, _ := syscall.UTF16PtrFromString("Clipboard UI Demo")
-	hwnd, _, _ := findWindowW.Call(0, uintptr(unsafe.Pointer(title)))
+
+	// Retry until window handle is found (window may not exist yet)
+	var hwnd uintptr
+	for i := 0; i < 20; i++ {
+		hwnd, _, _ = findWindowW.Call(0, uintptr(unsafe.Pointer(title)))
+		if hwnd != 0 {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
 	if hwnd == 0 {
+		runtime.WindowShow(a.ctx)
 		return
 	}
 
-	style, _, _ := getWindowLongW.Call(hwnd, gwlExStyle)
-	newStyle := style | wsExNoActivate | wsExToolWindow
-	setWindowLongW.Call(hwnd, gwlExStyle, newStyle)
+	// Remove X button: clear WS_SYSMENU from regular window style
+	ws, _, _ := getWindowLongW.Call(hwnd, gwlStyle)
+	setWindowLongW.Call(hwnd, gwlStyle, ws & ^uintptr(wsSysMenu))
+
+	// Prevent focus and hide from taskbar
+	ex, _, _ := getWindowLongW.Call(hwnd, gwlExStyle)
+	setWindowLongW.Call(hwnd, gwlExStyle, ex|wsExNoActivate|wsExToolWindow)
+
+	// Apply changes and show the window
 	setWindowPos.Call(hwnd, 0, 0, 0, 0, 0,
-		swpNoActivate|swpNoMove|swpNoSize|swpFrameChanged)
+		swpNoActivate|swpNoMove|swpNoSize|swpFrameChanged|swpShowWindow)
 }
 
 func (a *App) GetInitialItems() []ListItem {
