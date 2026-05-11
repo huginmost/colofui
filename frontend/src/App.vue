@@ -49,6 +49,7 @@ onMounted(async () => {
   gap: 2px;
   padding: 4px 6px;
   box-sizing: border-box;
+  background: transparent;
 }
 
 .scroll-area::-webkit-scrollbar {
@@ -70,18 +71,16 @@ onMounted(async () => {
   gap: 6px;
   height: 22px;
   min-height: 22px;
-  padding: 0 6px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-size: 14px;
   line-height: 22px;
-  text-shadow: 0 0 6px currentColor;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  text-shadow: 0 0 8px currentColor;
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .menu-item:hover {
-  background: rgba(60, 60, 60, 0.4);
+  background: rgba(20, 20, 20, 0.55);
 }
 
 .dot {
