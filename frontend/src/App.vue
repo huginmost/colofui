@@ -9,7 +9,13 @@ type ListItem = main.ListItem
 const items = ref<ListItem[]>([])
 
 onMounted(async () => {
+  console.log('=== [DIAG] Vue mounted ===')
+  console.log('html bg:', getComputedStyle(document.documentElement).background)
+  console.log('body bg:', getComputedStyle(document.body).background)
+  console.log('#app bg:', getComputedStyle(document.getElementById('app')!).background)
+
   items.value = await GetInitialItems()
+  console.log('=== [DIAG] Initial items loaded:', items.value.length)
 
   EventsOn('ui:item:add', (item: ListItem) => {
     items.value.unshift(item)
@@ -20,6 +26,7 @@ onMounted(async () => {
   })
 
   await StartMockStream()
+  console.log('=== [DIAG] Mock stream started ===')
 })
 </script>
 
@@ -53,16 +60,7 @@ onMounted(async () => {
 }
 
 .scroll-area::-webkit-scrollbar {
-  width: 3px;
-}
-
-.scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  display: none;
 }
 
 .menu-item {
@@ -72,15 +70,15 @@ onMounted(async () => {
   height: 22px;
   min-height: 22px;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 14px;
   line-height: 22px;
   text-shadow: 0 0 8px currentColor;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .menu-item:hover {
-  background: rgba(20, 20, 20, 0.55);
+  background: rgba(20, 20, 20, 0.35);
 }
 
 .dot {
