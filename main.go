@@ -15,12 +15,12 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:     "Clipboard UI Demo",
-		Width:     240,
-		Height:    460,
-		MinWidth:  240,
-		MinHeight: 300,
-		Frameless: true,
+		Title:       "Colorfui",
+		Width:       240,
+		Height:      460,
+		MinWidth:    240,
+		MinHeight:   300,
+		Frameless:   true,
 		AlwaysOnTop: true,
 		BackgroundColour: &options.RGBA{
 			R: 0,

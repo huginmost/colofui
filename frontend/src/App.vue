@@ -39,7 +39,7 @@ onMounted(async () => {
       :style="{ color: item.color }"
       @contextmenu.prevent="Quit()"
     >
-      <span class="dot"></span>
+      <span class="bar">|</span>
       <span class="item-text">{{ item.text }}</span>
     </div>
   </div>
@@ -65,30 +65,27 @@ onMounted(async () => {
 }
 
 .menu-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 22px;
-  min-height: 22px;
   padding: 2px 6px;
   border-radius: 10px;
   font-size: 14px;
   line-height: 22px;
   text-shadow: 0 0 8px currentColor;
   background: rgba(0, 0, 0, 0.25);
+  width: fit-content;
+  max-width: 100%;
 }
 
 .menu-item:hover {
   background: rgba(20, 20, 20, 0.35);
 }
 
-.dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 6px currentColor;
+.bar {
   flex-shrink: 0;
+  text-shadow: 0 0 6px currentColor;
 }
 
 .item-text {

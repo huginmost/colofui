@@ -2,6 +2,10 @@
 
 ## v1.1 (2026-05-12)
 
+**latest** — Replace dot with `|`, item background fits text width
+- 行首圆点替换为竖线 `|`，保留 glow 效果
+- 文本栏底部阴影框宽度改为跟随文本长度（`inline-flex` + `width: fit-content`）
+
 **063888e** — Window-wide drag
 - `--wails-draggable: drag` 加到 `scroll-area`，窗口内任意位置均可拖动
 
