@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { main } from '../wailsjs/go/models'
-import { GetInitialItems, StartMockStream, SelectItem } from '../wailsjs/go/main/App'
-import { EventsOn } from '../wailsjs/runtime/runtime'
+import { GetInitialItems, StartMockStream } from '../wailsjs/go/main/App'
+import { EventsOn, Quit } from '../wailsjs/runtime/runtime'
 
 type ListItem = main.ListItem
 
@@ -21,20 +21,16 @@ onMounted(async () => {
 
   await StartMockStream()
 })
-
-async function handleClick(item: ListItem) {
-  await SelectItem(item.id, item.text)
-}
 </script>
 
 <template>
-  <div class="scroll-area">
+  <div class="scroll-area" @contextmenu.prevent="Quit()">
     <div
       v-for="item in items"
       :key="item.id"
       class="menu-item item-enter"
       :style="{ color: item.color }"
-      @click="handleClick(item)"
+      @contextmenu.prevent="Quit()"
     >
       <span class="dot"></span>
       <span class="item-text">{{ item.text }}</span>
@@ -78,14 +74,14 @@ async function handleClick(item: ListItem) {
   border-radius: 6px;
   font-size: 14px;
   line-height: 22px;
-  cursor: pointer;
   text-shadow: 0 0 6px currentColor;
-  transition: background 0.15s ease, transform 0.15s ease;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateX(2px);
+  background: rgba(60, 60, 60, 0.4);
 }
 
 .dot {

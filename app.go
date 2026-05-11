@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"sync/atomic"
+	"syscall"
 	"time"
+	"unsafe"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -28,6 +30,39 @@ func NewApp() *App {
 
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	go a.setNoActivate()
+}
+
+const (
+	gwlExStyle      = ^uintptr(19) // -20 for GetWindowLongW
+	wsExNoActivate  = 0x08000000
+	wsExToolWindow  = 0x00000080
+	swpNoActivate   = 0x0010
+	swpNoMove       = 0x0002
+	swpNoSize       = 0x0001
+	swpFrameChanged = 0x0020
+)
+
+func (a *App) setNoActivate() {
+	time.Sleep(200 * time.Millisecond)
+
+	user32 := syscall.NewLazyDLL("user32.dll")
+	findWindowW := user32.NewProc("FindWindowW")
+	getWindowLongW := user32.NewProc("GetWindowLongW")
+	setWindowLongW := user32.NewProc("SetWindowLongW")
+	setWindowPos := user32.NewProc("SetWindowPos")
+
+	title, _ := syscall.UTF16PtrFromString("Clipboard UI Demo")
+	hwnd, _, _ := findWindowW.Call(0, uintptr(unsafe.Pointer(title)))
+	if hwnd == 0 {
+		return
+	}
+
+	style, _, _ := getWindowLongW.Call(hwnd, gwlExStyle)
+	newStyle := style | wsExNoActivate | wsExToolWindow
+	setWindowLongW.Call(hwnd, gwlExStyle, newStyle)
+	setWindowPos.Call(hwnd, 0, 0, 0, 0, 0,
+		swpNoActivate|swpNoMove|swpNoSize|swpFrameChanged)
 }
 
 func (a *App) GetInitialItems() []ListItem {
