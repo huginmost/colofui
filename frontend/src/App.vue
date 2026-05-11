@@ -28,81 +28,31 @@ async function handleClick(item: ListItem) {
 </script>
 
 <template>
-  <div class="panel">
-    <div class="title-bar">
-      <span class="title-text">SYSTEM MENU</span>
-      <span class="status-dot"></span>
-    </div>
-
-    <div class="scroll-area">
-      <div
-        v-for="item in items"
-        :key="item.id"
-        class="menu-item item-enter"
-        :style="{ color: item.color }"
-        @click="handleClick(item)"
-      >
-        <span class="dot"></span>
-        <span class="item-text">{{ item.text }}</span>
-      </div>
-    </div>
-
-    <div class="footer-bar">
-      <span class="footer-text">{{ items.length }} items</span>
+  <div class="scroll-area">
+    <div
+      v-for="item in items"
+      :key="item.id"
+      class="menu-item item-enter"
+      :style="{ color: item.color }"
+      @click="handleClick(item)"
+    >
+      <span class="dot"></span>
+      <span class="item-text">{{ item.text }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
-.panel {
-  width: 220px;
-  height: 420px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(120, 255, 255, 0.25);
-  border-radius: 12px;
-  box-shadow: 0 0 24px rgba(0, 255, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.title-bar {
-  --wails-draggable: drag;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 28px;
-  padding: 0 6px;
-  margin-bottom: 6px;
-  flex-shrink: 0;
-}
-
-.title-text {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.6);
-  text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #00ff88;
-  box-shadow: 0 0 6px #00ff88, 0 0 12px rgba(0, 255, 136, 0.4);
-}
-
 .scroll-area {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 4px 6px;
+  box-sizing: border-box;
 }
 
 .scroll-area::-webkit-scrollbar {
@@ -151,22 +101,6 @@ async function handleClick(item: ListItem) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.footer-bar {
-  flex-shrink: 0;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  padding: 0 6px;
-  margin-top: 4px;
-  border-top: 1px solid rgba(120, 255, 255, 0.08);
-}
-
-.footer-text {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.3);
-  letter-spacing: 1px;
 }
 
 /* Fade-in animation for new items */

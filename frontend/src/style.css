@@ -7,8 +7,5 @@ body,
   background: transparent;
   overflow: hidden;
   font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   user-select: none;
 }
