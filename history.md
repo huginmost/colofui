@@ -2,7 +2,10 @@
 
 ## v1.1 (2026-05-12)
 
-**8316d51** — Hide scrollbar, lighter item background, larger border-radius
+**latest** — Window-wide drag
+- `--wails-draggable: drag` 加到 `scroll-area`，窗口内任意位置均可拖动
+
+**b5e8549** — Hide scrollbar, lighter item background, larger border-radius
 - 隐藏滚动条（保留滚轮滚动）
 - 每行文本背景透明度降低：`rgba(0,0,0,0.45)` → `rgba(0,0,0,0.25)`
 - hover 背景同步变淡

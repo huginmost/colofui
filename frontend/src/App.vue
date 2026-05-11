@@ -47,6 +47,7 @@ onMounted(async () => {
 
 <style scoped>
 .scroll-area {
+  --wails-draggable: drag;
   width: 100%;
   height: 100%;
   overflow-y: auto;
