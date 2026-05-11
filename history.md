@@ -2,7 +2,7 @@
 
 ## v1.1 (2026-05-12)
 
-**latest** — Window-wide drag
+**063888e** — Window-wide drag
 - `--wails-draggable: drag` 加到 `scroll-area`，窗口内任意位置均可拖动
 
 **b5e8549** — Hide scrollbar, lighter item background, larger border-radius
