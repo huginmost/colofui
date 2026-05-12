@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.2 (2026-05-12)
+
+**2bf8ef7** — Right-click context menu + fullscreen click-through
+- 右键弹出 Windows 风格半透明菜单（修改/删除/关闭），亚克力模糊 + 白色文字
+- 窗口扩展为全屏 + `SetWindowRgn` 裁剪：面板区域外点击穿透到下层窗口
+- 菜单打开时区域扩至全屏，backdrop 捕获点击关闭菜单
+- 文字面板改为浮动容器（240x460），自定义左键拖动（替代 `--wails-draggable`）
+- 前端通过 `SetPanelBounds` / `SetContextMenuVisible` 实时同步面板边界和菜单状态给 Go 端
+
 ## v1.1 (2026-05-12)
 
 **aa360c2** — Replace dot with `|`, item background fits text width
