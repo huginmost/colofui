@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -52,6 +53,46 @@ var (
 	hCurrentWnd uintptr
 )
 
+// Panel hit-test region (window-relative coordinates)
+var (
+	panelRect          = struct{ x, y, w, h int }{0, 0, 240, 460}
+	contextMenuVisible bool
+	panelMutex         sync.Mutex
+)
+
+// updateWindowRegion sets the window region to panel area or full screen.
+func updateWindowRegion() {
+	if hCurrentWnd == 0 {
+		return
+	}
+
+	panelMutex.Lock()
+	vis := contextMenuVisible
+	rx, ry, rw, rh := panelRect.x, panelRect.y, panelRect.w, panelRect.h
+	panelMutex.Unlock()
+
+	user32 := syscall.NewLazyDLL("user32.dll")
+	setWindowRgn := user32.NewProc("SetWindowRgn")
+	gdi32 := syscall.NewLazyDLL("gdi32.dll")
+	createRectRgn := gdi32.NewProc("CreateRectRgn")
+
+	var hrgn uintptr
+	if vis {
+		// Full screen region — backdrop can catch clicks anywhere
+		hrgn, _, _ = createRectRgn.Call(0, 0, uintptr(ScreenW), uintptr(ScreenH))
+	} else {
+		// Panel-only region — clicks outside pass through
+		hrgn, _, _ = createRectRgn.Call(
+			uintptr(rx), uintptr(ry),
+			uintptr(rx+rw), uintptr(ry+rh),
+		)
+	}
+
+	setWindowRgn.Call(hCurrentWnd, hrgn, 1) // bRedraw = true
+	fmt.Printf("=== [DIAG] SetWindowRgn: vis=%v rect=(%d,%d,%d,%d) ===\n",
+		vis, rx, ry, rw, rh)
+}
+
 func findWindowByProcess() uintptr {
 	user32 := syscall.NewLazyDLL("user32.dll")
 	kernel32 := syscall.NewLazyDLL("kernel32.dll")
@@ -99,7 +140,6 @@ func (a *App) applyWindowStyles() {
 	setWindowLongW := user32.NewProc("SetWindowLongW")
 	setWindowPos := user32.NewProc("SetWindowPos")
 	showWindow := user32.NewProc("ShowWindow")
-
 	dwmapi := syscall.NewLazyDLL("dwmapi.dll")
 	dwmSetWindowAttribute := dwmapi.NewProc("DwmSetWindowAttribute")
 
@@ -168,14 +208,38 @@ func (a *App) applyWindowStyles() {
 	showWindow.Call(hwnd, uintptr(swShowNoActivate))
 	fmt.Println("=== [DIAG] ShowWindow(SW_SHOWNOACTIVATE) called ===")
 
-	// Update position to topmost (no need for SWP_SHOWWINDOW since already shown)
-	setWindowPos.Call(hwnd, hwndTopmost, 0, 0, 0, 0,
-		swpNoActivate|swpNoMove|swpNoSize|swpFrameChanged)
+	// Position window at (0,0) fullscreen + topmost
+	setWindowPos.Call(hwnd, hwndTopmost, 0, 0, uintptr(ScreenW), uintptr(ScreenH),
+		swpNoActivate|swpFrameChanged)
+
+	// Set initial window region to panel area for click-through
+	updateWindowRegion()
 
 	// Force transparent background via runtime
 	fmt.Println("=== [DIAG] Calling WindowSetBackgroundColour(0,0,0,0) ===")
 	runtime.WindowSetBackgroundColour(a.ctx, 0, 0, 0, 0)
 	fmt.Println("=== [DIAG] applyWindowStyles() finished ===")
+}
+
+// SetPanelBounds is called from frontend to update the draggable panel's position/size.
+func (a *App) SetPanelBounds(x, y, w, h int) {
+	fmt.Printf("=== [DIAG] SetPanelBounds: x=%d y=%d w=%d h=%d ===\n", x, y, w, h)
+	panelMutex.Lock()
+	panelRect.x = x
+	panelRect.y = y
+	panelRect.w = w
+	panelRect.h = h
+	panelMutex.Unlock()
+	updateWindowRegion()
+}
+
+// SetContextMenuVisible is called from frontend when the context menu opens/closes.
+func (a *App) SetContextMenuVisible(visible bool) {
+	fmt.Printf("=== [DIAG] SetContextMenuVisible: %v ===\n", visible)
+	panelMutex.Lock()
+	contextMenuVisible = visible
+	panelMutex.Unlock()
+	updateWindowRegion()
 }
 
 func (a *App) GetInitialItems() []ListItem {
